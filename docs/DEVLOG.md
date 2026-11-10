@@ -2,7 +2,7 @@
  
 This is version 2 of my [Python CLI vulnerability scanner](https://github.com/yessin-ze/ai-security-scanner-cli). It is a standalone project, not just a wrapper: I rewrote the code in TypeScript so it can run as a VS Code extension that scans the file you are working on and reports vulnerabilities in a side panel.
  
-![Final result: the security audit report panel next to the scanned file](images/final-report.png)
+![Final result: the security audit report panel next to the scanned file](final-report.png)
  
 Something I would like to add later is real CVSS scoring for the severity ratings. For now the extension uses simple rule-based severity tiers (see [Step 4](#step-4-report-panel-and-severity-rules)).
  
@@ -27,13 +27,13 @@ To turn my Python CLI into a VS Code extension, I moved the project from Python 
  
 After generating the project, I launched the Extension Development Host (F5) and ran the default command from the Command Palette to check that the extension lifecycle and build pipeline worked.
  
-![Running the yo code generator](images/01-scaffold.png)
+![Running the yo code generator](01-scaffold.png)
  
 ### Troubleshooting: extension not activating
  
 At first the "Hello World" command did not show up in the Command Palette. The cause was that `yo code` had set `"engines": { "vscode": "^1.145.0" }` in `package.json`, which was newer than my installed Code - OSS build, so VS Code silently skipped loading the extension. Lowering the minimum engine version in `package.json` fixed it and the command appeared.
  
-![Hello World command working after the engines fix](images/02-hello-world.png)
+![Hello World command working after the engines fix](02-hello-world.png)
  
 ### Installing the Gemini SDK
  
@@ -51,8 +51,8 @@ In v1.0 of the CLI I stored the Gemini API key in a local `.env` file. That does
  
 For v2.0 I used VS Code's native SecretStorage API (`context.secrets`). I registered an `ai-security-scanner.setApiKey` command that asks for the key in a masked input box (`password: true`) and stores it in the operating system's keyring (libsecret on Linux). The scan command also checks for a key first and prompts the user to set one if none is found.
  
-![Masked API key prompt](images/03-api-key-prompt.png)
-![Confirmation that the key was saved to the OS keyring](images/04-key-saved.png)
+![Masked API key prompt](03-api-key-prompt.png)
+![Confirmation that the key was saved to the OS keyring](04-key-saved.png)
  
 ---
  
@@ -74,7 +74,7 @@ I added the `@google/genai` SDK and ported the security audit prompt from v1.0. 
  
 To make the wait clearer, I wrapped the `gemini-3.5-flash` request in `vscode.window.withProgress`, which shows a status notification while Gemini checks the code for SQL injection, weak hashing, hardcoded secrets and command injection.
  
-![First working report, shown as plain text](images/05-first-report.png)
+![First working report, shown as plain text](05-first-report.png)
  
 ### Handling a false-positive refusal
  
@@ -82,7 +82,7 @@ When I tested on `vun2.py`, Gemini first refused: "Sorry, I cannot analyze the p
  
 I rewrote the system prompt to state the defensive purpose clearly: an automated code-quality linter and refactoring assistant for students. That removed the false refusal, and the output format stayed the same: `SEVERITY / TYPE / DESCRIPTION / IMPACT / FIX`.
  
-![The model's false-positive refusal](images/06-model-refusal.png)
+![The model's false-positive refusal](06-model-refusal.png)
  
 ---
  
@@ -92,7 +92,7 @@ I rewrote the system prompt to state the defensive purpose clearly: an automated
  
 To go beyond the colorama terminal output of v1.0, I built a custom HTML/CSS side panel with `vscode.window.createWebviewPanel`, styled as a cyberpunk HUD.
  
-![The cyberpunk-style report panel](images/07-report-panel.png)
+![The cyberpunk-style report panel](07-report-panel.png)
  
 ### Rule-based severity
  
@@ -114,7 +114,7 @@ These tiers are inspired by CVSS-style ratings. They are fixed rules and do not 
  
 I bundled the TypeScript source and dependencies with esbuild in production mode and packaged the extension into a `.vsix` file with `@vscode/vsce package`. Then I installed `ai-security-scanner-0.0.1.vsix` in my own VS Code, so the scanner now runs on demand on whatever Python file I have open.
  
-![Packaging the .vsix](images/08-packaging.png)
+![Packaging the .vsix](08-packaging.png)
  
 ---
  
